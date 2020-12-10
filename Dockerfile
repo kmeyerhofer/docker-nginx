@@ -60,7 +60,8 @@ RUN set -x && \
 #
 RUN set -x && \
     cd ${BUILD_DIR}/nginx-${VERSION} && \
-    cp objs/ngx_http_proxy_connect_module.so ${MODULES_DIR}
+    cp objs/ngx_http_proxy_connect_module.so ${MODULES_DIR} && \
+    chmod 644 ${MODULES_DIR}/ngx_http_proxy_connect_module.so
 
 #
 # Server
@@ -71,6 +72,7 @@ ARG modles_dir
 
 COPY --from=builder ${MODULES_DIR}/* ${MODULES_DIR}/
 COPY docker-entrypoint.sh /
+RUN set -x && chmod +x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 EXPOSE 80 443
 STOPSIGNAL SIGQUIT
