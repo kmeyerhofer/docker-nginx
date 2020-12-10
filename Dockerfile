@@ -71,6 +71,7 @@ FROM nginx:${VERSION} as server
 #ARG MODULES_DIR
 
 #COPY --from=builder ${MODULES_DIR}/* ${MODULES_DIR}/
+COPY --from=builder ${BUILD_DIR}/* ${BUILD_DIR}/
 COPY docker-entrypoint.sh /
 RUN set -x && chmod +x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
