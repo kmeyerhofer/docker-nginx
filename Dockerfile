@@ -51,7 +51,7 @@ RUN set -x && \
 RUN set -x && \
     cd ${BUILD_DIR}/nginx-${VERSION} && \
     patch -p1 < ../ngx_http_proxy_connect_module/patch/proxy_connect_rewrite_1018.patch && \
-    ./configure --add-dynamic-module=../ngx_http_proxy_connect_module && \
+    ./configure --add-dynamic-module="../ngx_http_proxy_connect_module" && \
     make && \
     make install
 
