@@ -1,15 +1,15 @@
-ARG version=1.18.0
-ARG build_dir="/usr/share/tmp"
-ARG modules_dir="/usr/lib/nginx/modules"
+ARG VERSION=1.18.0
+ARG BUILD_DIR="/usr/share/tmp"
+ARG MODULES_DIR="/usr/lib/nginx/modules"
 
 #
 # Nginx builder
 #
 FROM debian:10.2 AS builder
 
-ARG version
-ARG build_dir
-ARG modules_dir
+ARG VERSION
+ARG BUILD_DIR
+ARG MODULES_DIR
 
 SHELL ["/bin/bash", "-c"]
 ENV build_deps "ca-certificates wget git build-essential libpcre3-dev zlib1g-dev libtool libssl-dev unzip"
@@ -25,31 +25,31 @@ RUN set -x && \
 # Create directories
 #
 RUN set -x && \
-    echo ${build_dir} && echo ${modules_dir} && \
-    mkdir -p ${build_dir} && \
-    mkdir -p ${modules_dir}
+    echo ${BUILD_DIR} && echo ${MODULES_DIR} && \
+    mkdir -p ${BUILD_DIR} && \
+    mkdir -p ${MODULES_DIR}
 
 #
 # Download Nginx
 #
 RUN set -x && \
-    cd ${build_dir} && \
-    wget https://nginx.org/download/nginx-${version}.tar.gz && \
-    tar xzf nginx-${version}.tar.gz && \
-    rm nginx-${version}.tar.gz
+    cd ${BUILD_DIR} && \
+    wget https://nginx.org/download/nginx-${VERSION}.tar.gz && \
+    tar xzf nginx-${VERSION}.tar.gz && \
+    rm nginx-${VERSION}.tar.gz
 
 #
 # Download http_proxy_connect
 #
 RUN set -x && \
-    cd ${build_dir} && \
+    cd ${BUILD_DIR} && \
     git clone https://github.com/chobits/ngx_http_proxy_connect_module.git
 
 #
 # Install Nginx with http_proxy_connect
 #
 RUN set -x && \
-    cd ${build_dir}/nginx-${version} && \
+    cd ${BUILD_DIR}/nginx-${VERSION} && \
     patch -p1 < ../ngx_http_proxy_connect_module/patch/proxy_connect_rewrite_1018.patch && \
     ./configure --add-dynamic-module=../ngx_http_proxy_connect_module && \
     make && \
@@ -59,17 +59,17 @@ RUN set -x && \
 # Move compiled module
 #
 RUN set -x && \
-    cd ${build_dir}/nginx-${version} && \
-    cp objs/ngx_http_proxy_connect_module.so ${modules_dir}
+    cd ${BUILD_DIR}/nginx-${VERSION} && \
+    cp objs/ngx_http_proxy_connect_module.so ${MODULES_DIR}
 
 #
 # Server
 #
-FROM nginx:${version} as server
+FROM nginx:${VERSION} as server
 
 ARG modles_dir
 
-COPY --from=builder ${modules_dir}/* ${modules_dir}/
+COPY --from=builder ${MODULES_DIR}/* ${MODULES_DIR}/
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 EXPOSE 80 443
