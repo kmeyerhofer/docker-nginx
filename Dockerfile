@@ -68,7 +68,7 @@ RUN set -x && \
 #
 FROM nginx:${VERSION} as server
 
-ARG modles_dir
+ARG MODULES_DIR
 
 COPY --from=builder ${MODULES_DIR}/* ${MODULES_DIR}/
 COPY docker-entrypoint.sh /
