@@ -58,19 +58,19 @@ RUN set -x && \
 #
 # Move compiled module
 #
-RUN set -x && \
-    cd ${BUILD_DIR}/nginx-${VERSION} && \
-    cp objs/ngx_http_proxy_connect_module.so ${MODULES_DIR} && \
-    chmod 644 ${MODULES_DIR}/ngx_http_proxy_connect_module.so
+#RUN set -x && \
+#    cd ${BUILD_DIR}/nginx-${VERSION} && \
+#    cp objs/ngx_http_proxy_connect_module.so ${MODULES_DIR} && \
+#    chmod 644 ${MODULES_DIR}/ngx_http_proxy_connect_module.so
 
 #
 # Server
 #
 FROM nginx:${VERSION} as server
 
-ARG MODULES_DIR
+#ARG MODULES_DIR
 
-COPY --from=builder ${MODULES_DIR}/* ${MODULES_DIR}/
+#COPY --from=builder ${MODULES_DIR}/* ${MODULES_DIR}/
 COPY docker-entrypoint.sh /
 RUN set -x && chmod +x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
