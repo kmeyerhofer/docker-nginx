@@ -51,27 +51,34 @@ RUN set -x && \
 RUN set -x && \
     cd ${BUILD_DIR}/nginx-${VERSION} && \
     patch -p1 < ../ngx_http_proxy_connect_module/patch/proxy_connect_rewrite_1018.patch && \
-    ./configure --add-module=../ngx_http_proxy_connect_module && \
+    ./configure --add-dynamic-module=../ngx_http_proxy_connect_module && \
     make && \
     make install
 
 #
 # Move compiled module
 #
-#RUN set -x && \
-#    cd ${BUILD_DIR}/nginx-${VERSION} && \
-#    cp objs/ngx_http_proxy_connect_module.so ${MODULES_DIR} && \
-#    chmod 644 ${MODULES_DIR}/ngx_http_proxy_connect_module.so
+RUN set -x && \
+    cd ${BUILD_DIR}/nginx-${VERSION} && \
+    cp objs/ngx_http_proxy_connect_module.so ${MODULES_DIR} && \
+    chmod 644 ${MODULES_DIR}/ngx_http_proxy_connect_module.so
+
+#
+# Cleanup
+#
+RUN set -x && \
+    apt-get remove --purge --auto-remove -y
 
 #
 # Server
 #
+# This may not be the solution - The nginx binary compiled above needs to be the one run below
 FROM nginx:${VERSION} as server
 
-#ARG MODULES_DIR
+ARG MODULES_DIR
 
-#COPY --from=builder ${MODULES_DIR}/* ${MODULES_DIR}/
-COPY --from=builder ${BUILD_DIR}/* ${BUILD_DIR}/
+COPY --from=builder ${MODULES_DIR}/* ${MODULES_DIR}/
+
 COPY docker-entrypoint.sh /
 RUN set -x && chmod +x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
